@@ -60,7 +60,23 @@ public sealed unsafe class PartyBannerAddon : IDisposable
                 firstName->SetText(config.FakeFirstName);
                 lastName->SetText(config.FakeLastName);
             }
-            // FIXME figure out what the name length limit is for splitting the name in 2
+
+            // the cutoff seems to be based on length of the text but let's approximate it
+            const int splitLength = 12;
+
+            int fakeLength = config.FakeFirstName.Length + config.FakeLastName.Length;
+            if (fakeLength > splitLength)
+            {
+                firstName->ToggleVisibility(true);
+                lastName->ToggleVisibility(true);
+                fullName->ToggleVisibility(false);
+            }
+            else
+            {
+                firstName->ToggleVisibility(false);
+                lastName->ToggleVisibility(false);
+                fullName->ToggleVisibility(true);
+            }
         }
     }
 }

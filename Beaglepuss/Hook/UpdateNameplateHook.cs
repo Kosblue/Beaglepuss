@@ -82,7 +82,7 @@ public sealed unsafe class UpdateNameplateHook : IDisposable
         string title = namePlateInfo->Title.ToString();
         if (!title.Matches(Plugin.GetOwnName())) { return; }
 
-        Services.Log.Info($"Changing pet owner name {namePlateInfo->DisplayTitle}");
+        Services.Log.Debug($"Changing pet owner name {namePlateInfo->DisplayTitle}");
         namePlateInfo->DisplayTitle.SetString(config.GetFakeOwnerName());
         namePlateInfo->IsDirty = true;
     }

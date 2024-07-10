@@ -23,6 +23,7 @@ public sealed unsafe class PartyBannerAddon : IDisposable
 
     private void OnPartyBannerUpdate(AddonEvent type, AddonArgs args)
     {
+        Services.Log.Debug("PartyBannerAddon OnPartyBannerUpdate");
         var addon = (AtkUnitBase*)args.Addon;
         if (!addon->IsVisible) { return; }
 
@@ -59,6 +60,7 @@ public sealed unsafe class PartyBannerAddon : IDisposable
                 firstName->SetText(config.FakeFirstName);
                 lastName->SetText(config.FakeLastName);
             }
+            // FIXME figure out what the name length limit is for splitting the name in 2
         }
     }
 }

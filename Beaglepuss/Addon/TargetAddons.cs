@@ -13,9 +13,9 @@ public sealed unsafe class TargetAddons : IDisposable
     public TargetAddons(Configuration config)
     {
         this.config = config;
-        Services.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "_TargetInfo", OnTargetInfoUpdate);
-        Services.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "_TargetInfoMainTarget", TargetInfoMainTargetUpdate);
-        Services.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "_FocusTargetInfo", FocusTargetInfoUpdate);
+        Services.AddonLifecycle.RegisterListener(AddonEvent.PostRequestedUpdate, "_TargetInfo", OnTargetInfoUpdate);
+        Services.AddonLifecycle.RegisterListener(AddonEvent.PostRequestedUpdate, "_TargetInfoMainTarget", TargetInfoMainTargetUpdate);
+        Services.AddonLifecycle.RegisterListener(AddonEvent.PostRequestedUpdate, "_FocusTargetInfo", FocusTargetInfoUpdate);
     }
 
     public void Dispose()
@@ -82,6 +82,8 @@ public sealed unsafe class TargetAddons : IDisposable
             {
                 text = text.Replace(oriFcName, config.GetFormattedFakeFcTag());
             }
+
+            Services.Log.Debug($"Changed name on target info to {text}");
         }
 
         textNode->NodeText.SetString(text);

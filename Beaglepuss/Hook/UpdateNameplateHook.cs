@@ -23,7 +23,7 @@ public sealed unsafe class UpdateNameplateHook : IDisposable
     [Signature(Signatures.UpdateNamePlate, DetourName = nameof(UpdateNameplateDetour))]
     private readonly Hook<UpdateNameplateDelegate> hook = null!;
 
-    private Configuration config;
+    private readonly Configuration config;
     public UpdateNameplateHook(Configuration config)
     {
         this.config = config;
@@ -104,7 +104,7 @@ public sealed unsafe class UpdateNameplateHook : IDisposable
         string paddedFcTag = config.GetPaddedFakeFcTag();
         if (ShouldShowFcTag(player) && !fcName.Matches(paddedFcTag))
         {
-            Services.Log.Info("Changing FC name");
+            Services.Log.Debug("Changing FC name");
             namePlateInfo->FcName.SetString(paddedFcTag);
         }
 

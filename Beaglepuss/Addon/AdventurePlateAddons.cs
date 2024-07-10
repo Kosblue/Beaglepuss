@@ -11,7 +11,7 @@ public sealed unsafe class AdventurePlateAddons : IDisposable
     public AdventurePlateAddons(Configuration config)
     {
         this.config = config;
-        Services.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "CharaCard", OnCharaCardUpdated);
+        Services.AddonLifecycle.RegisterListener(AddonEvent.PostRequestedUpdate, "CharaCard", OnCharaCardUpdated);
     }
 
     public void Dispose() { Services.AddonLifecycle.UnregisterListener(OnCharaCardUpdated); }
@@ -32,18 +32,31 @@ public sealed unsafe class AdventurePlateAddons : IDisposable
     {
         AtkComponentNode* nameTitleContainer = addon->GetNodeById(4)->GetAsAtkComponentNode();
 
-        if (nameTitleContainer is null) { return false; }
+        if (nameTitleContainer is null)
+        {
+            Services.Log.Error("Name title container not found");
+            return false;
+        }
 
         AtkResNode* nameContainer = nameTitleContainer->Component->UldManager.SearchNodeById(4);
 
-        if (nameContainer is null) { return false; }
+        if (nameContainer is null)
+        {
+            Services.Log.Error("Name container not found");
+            return false;
+        }
 
         AtkTextNode* nameTextNode = nameContainer->ChildNode->GetAsAtkTextNode();
-        if (nameTextNode is null) { return false; }
+        if (nameTextNode is null)
+        {
+            Services.Log.Error("Name text node not found");
+            return false;
+        }
 
         string text = nameTextNode->NodeText.ToString();
         if (!text.Matches(Plugin.GetOwnName())) { return false; }
 
+        Services.Log.Debug("Replacing name on Adventure Plate");
         nameTextNode->SetText(config.GetFakeName());
         return true;
     }

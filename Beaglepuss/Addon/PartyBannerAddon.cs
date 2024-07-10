@@ -65,7 +65,7 @@ public sealed unsafe class PartyBannerAddon : IDisposable
             const int splitLength = 12;
 
             int fakeLength = config.FakeFirstName.Length + config.FakeLastName.Length;
-            if (fakeLength > splitLength)
+            if (fakeLength >= splitLength)
             {
                 firstName->ToggleVisibility(true);
                 lastName->ToggleVisibility(true);

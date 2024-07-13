@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -45,9 +46,21 @@ public sealed unsafe class SearchInfoAddon : IDisposable
 
             if (fcNode is null || fcTagNode is null || searchComment is null) { return; }
 
+            string originalFcText = fcNode->NodeText.ToString();
             fcNode->SetText(config.FakeFcName);
-            fcTagNode->ToggleVisibility(false); // don't wanna position this lole
+
+            fcTagNode->SetText(config.GetPaddedFakeFcTag());
             searchComment->SetText(config.FakeSearchComment);
+
+            if (originalFcText.Matches(config.FakeFcName)) { return; }
+
+            IntPtr replacedTextPtr = Marshal.StringToHGlobalAnsi(config.FakeFcName);
+            ushort outWidth,
+                   outHeight;
+            fcNode->GetTextDrawSize(&outWidth, &outHeight, (byte*)replacedTextPtr);
+            Marshal.FreeHGlobal(replacedTextPtr);
+
+            fcTagNode->SetXFloat(fcNode->GetXFloat() + outWidth);
         }
     }
 }

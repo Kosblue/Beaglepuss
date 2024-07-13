@@ -1,26 +1,14 @@
-﻿using System;
-using Dalamud.Game.Addon.Lifecycle;
-using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
+﻿using Dalamud.Game.Addon.Lifecycle;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace Beaglepuss.Addon;
 
-public sealed unsafe class AdventurePlateAddons : IDisposable
+public sealed unsafe class AdventurePlateAddons(PluginData pluginData)
+    : AddonHandlerBase(pluginData, AddonEvent.PostRequestedUpdate, "CharaCard")
 {
-    private readonly Configuration config;
-    public AdventurePlateAddons(Configuration config)
+
+    protected override void OnUpdate(AtkUnitBase* addon)
     {
-        this.config = config;
-        Services.AddonLifecycle.RegisterListener(AddonEvent.PostRequestedUpdate, "CharaCard", OnCharaCardUpdated);
-    }
-
-    public void Dispose() { Services.AddonLifecycle.UnregisterListener(OnCharaCardUpdated); }
-
-    private void OnCharaCardUpdated(AddonEvent type, AddonArgs args)
-    {
-        var addon = (AtkUnitBase*)args.Addon;
-        if (!addon->IsVisible) { return; }
-
         if (TryReplaceName(addon))
         {
             TryReplaceFc(addon);
@@ -57,7 +45,7 @@ public sealed unsafe class AdventurePlateAddons : IDisposable
         if (!text.Matches(Plugin.GetOwnName())) { return false; }
 
         Services.Log.Debug("Replacing name on Adventure Plate");
-        nameTextNode->SetText(config.GetFakeName());
+        Utils.TrySetText(nameTextNode, StringIdentifier.FakeName, PluginData);
         return true;
     }
 
@@ -70,7 +58,7 @@ public sealed unsafe class AdventurePlateAddons : IDisposable
 
         if (fcName is null) { return; }
 
-        fcName->SetText(config.FakeFcName);
+        Utils.TrySetText(fcName, StringIdentifier.FakeFreeCompany, PluginData);
     }
 
     private void TryReplaceSearchComment(AtkUnitBase* addon)
@@ -82,6 +70,6 @@ public sealed unsafe class AdventurePlateAddons : IDisposable
         AtkTextNode* searchComment = searchCommentContainer->Component->UldManager.SearchNodeById(3)->GetAsAtkTextNode();
         if (searchComment is null) { return; }
 
-        searchComment->SetText(config.FakeSearchComment);
+        Utils.TrySetText(searchComment, StringIdentifier.FakeSearchComment, PluginData);
     }
 }

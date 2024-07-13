@@ -1,26 +1,13 @@
-﻿using System;
-using Dalamud.Game.Addon.Lifecycle;
-using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
+﻿using Dalamud.Game.Addon.Lifecycle;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace Beaglepuss.Addon;
 
-public sealed unsafe class ExamineAddon : IDisposable
+public sealed unsafe class ExamineAddon(PluginData pluginData)
+    : AddonHandlerBase(pluginData, AddonEvent.PostRefresh, "CharacterInspect")
 {
-    private readonly Configuration config;
-    public ExamineAddon(Configuration config)
+    protected override void OnUpdate(AtkUnitBase* addon)
     {
-        this.config = config;
-        Services.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "CharacterInspect", OnExamineUpdate);
-    }
-
-    public void Dispose() { Services.AddonLifecycle.UnregisterListener(OnExamineUpdate); }
-
-    private void OnExamineUpdate(AddonEvent type, AddonArgs args)
-    {
-        var addon = (AtkUnitBase*)args.Addon;
-        if (!addon->IsVisible) { return; }
-
         AtkTextNode* nameNode = addon->GetNodeById(6)->GetAsAtkTextNode();
         if (nameNode is null) { return; }
 
@@ -30,26 +17,26 @@ public sealed unsafe class ExamineAddon : IDisposable
 
         if (examineText.Matches(myName))
         {
-            nameNode->SetText(config.GetFakeName());
+            Utils.TrySetText(nameNode, StringIdentifier.FakeName, PluginData);
         }
 
-        if (examineText.Matches(myName) || examineText.Matches(config.GetFakeName()))
+        if (examineText.Matches(myName) || examineText.Matches(PluginData.Config.GetFakeName()))
         {
             AtkTextNode* fcNameNode = addon->GetNodeById(28)->GetAsAtkTextNode();
             AtkTextNode* noFcNode = addon->GetNodeById(26)->GetAsAtkTextNode();
             if (fcNameNode is not null && noFcNode is not null)
             {
-                if (!noFcNode->IsVisible() &&
-                    fcNameNode->IsVisible())
+                if (!noFcNode->IsVisible() && fcNameNode->IsVisible())
                 {
-                    fcNameNode->SetText(config.FakeFcName);
+                    Utils.TrySetText(fcNameNode, StringIdentifier.FakeFreeCompany, PluginData);
                 }
             }
 
             AtkTextNode* searchCommentNode = addon->GetNodeById(4)->GetAsAtkTextNode();
-            if (searchCommentNode is not null && searchCommentNode->IsVisible())
+            if (searchCommentNode is not null)
             {
-                searchCommentNode->SetText(config.FakeSearchComment);
+                Utils.TrySetText(searchCommentNode, StringIdentifier.FakeSearchComment, PluginData);
+                searchCommentNode->ToggleVisibility(false);
             }
         }
     }

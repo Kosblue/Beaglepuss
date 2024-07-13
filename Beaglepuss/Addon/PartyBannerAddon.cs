@@ -5,35 +5,17 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace Beaglepuss.Addon;
 
-public sealed unsafe class PartyBannerAddon : IDisposable
+public sealed unsafe class PartyBannerAddon(PluginData data)
+    : AddonHandlerBase(data, AddonEvent.PostUpdate, "BannerParty")
 {
-    private readonly Configuration config;
-    public PartyBannerAddon(Configuration config)
-    {
-        this.config = config;
-        Services.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "BannerParty", OnPartyBannerUpdate);
-    }
-
-    public void Dispose()
-    {
-        Services.AddonLifecycle.UnregisterListener(OnPartyBannerUpdate);
-    }
-
     private static readonly uint[] AdvPlateIndices = [4, 6, 8, 10, 12, 14, 16, 18];
 
-    private void OnPartyBannerUpdate(AddonEvent type, AddonArgs args)
+    protected override void OnUpdate(AtkUnitBase* addon)
     {
-        Services.Log.Debug("PartyBannerAddon OnPartyBannerUpdate");
-        var addon = (AtkUnitBase*)args.Addon;
-        if (!addon->IsVisible) { return; }
-
         foreach (uint index in AdvPlateIndices)
         {
             AtkComponentNode* partyBannerNode = addon->GetNodeById(index)->GetAsAtkComponentNode();
-            if (partyBannerNode is null || !partyBannerNode->IsVisible())
-            {
-                continue;
-            }
+            if (partyBannerNode is null || !partyBannerNode->IsVisible()) { continue; }
 
             AtkUldManager children = partyBannerNode->Component->UldManager;
 
@@ -41,10 +23,7 @@ public sealed unsafe class PartyBannerAddon : IDisposable
             AtkTextNode* firstName = children.SearchNodeById(6)->GetAsAtkTextNode();
             AtkTextNode* lastName = children.SearchNodeById(7)->GetAsAtkTextNode();
 
-            if (fullName is null || firstName is null || lastName is null)
-            {
-                continue;
-            }
+            if (fullName is null || firstName is null || lastName is null) { continue; }
 
             string nameText = fullName->NodeText.ToString();
 
@@ -52,19 +31,21 @@ public sealed unsafe class PartyBannerAddon : IDisposable
 
             if (nameText.Matches(ownName))
             {
-                fullName->SetText(config.GetFakeName());
+                Utils.TrySetText(fullName, StringIdentifier.FakeName, PluginData);
             }
 
-            if (nameText.Matches(ownName) || nameText.Matches(config.GetFakeName()))
+            if (nameText.Matches(ownName) || nameText.Matches(PluginData.Config.GetFakeName()))
             {
-                firstName->SetText(config.FakeFirstName);
-                lastName->SetText(config.FakeLastName);
+                Utils.TrySetText(firstName, StringIdentifier.FakeFirstName, PluginData);
+                Utils.TrySetText(lastName, StringIdentifier.FakeLastName, PluginData);
             }
 
             // the cutoff seems to be based on length of the text but let's approximate it
             const int splitLength = 12;
 
-            int fakeLength = config.FakeFirstName.Length + config.FakeLastName.Length;
+            int fakeLength = PluginData.Config.FakeFirstName.Length +
+                             PluginData.Config.FakeLastName.Length;
+
             if (fakeLength >= splitLength)
             {
                 firstName->ToggleVisibility(true);

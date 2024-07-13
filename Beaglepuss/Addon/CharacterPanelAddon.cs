@@ -5,25 +5,12 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace Beaglepuss.Addon;
 
-public sealed unsafe class CharacterPanelAddon : IDisposable
+public sealed unsafe class CharacterPanelAddon(PluginData pluginData)
+    : AddonHandlerBase(pluginData, AddonEvent.PostUpdate, "Character")
 {
-    private readonly Configuration config;
-    public CharacterPanelAddon(Configuration config)
-    {
-        this.config = config;
-        Services.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "Character", OnCharacterPanelUpdate);
-    }
 
-    public void Dispose()
+    protected override void OnUpdate(AtkUnitBase* addon)
     {
-        Services.AddonLifecycle.UnregisterListener(OnCharacterPanelUpdate);
-    }
-
-    private void OnCharacterPanelUpdate(AddonEvent type, AddonArgs args)
-    {
-        var addon = (AtkUnitBase*)args.Addon;
-        if (!addon->IsVisible) { return; }
-
         IntPtr profilePtr = Services.GameGui.GetAddonByName("CharacterProfile");
         if (profilePtr != IntPtr.Zero)
         {
@@ -37,7 +24,7 @@ public sealed unsafe class CharacterPanelAddon : IDisposable
         string nameText = nameNode->NodeText.ToString();
         if (!nameText.Contains(Plugin.GetOwnName(), StringComparison.OrdinalIgnoreCase)) { return; }
 
-        nameNode->SetText(config.GetFakeName());
+        Utils.TrySetText(nameNode, StringIdentifier.FakeName, PluginData);
     }
 
     private void UpdateCharacterProfilePanel(AtkUnitBase* profile)
@@ -51,6 +38,6 @@ public sealed unsafe class CharacterPanelAddon : IDisposable
         string nameText = profileNameNode->NodeText.ToString();
         if (!nameText.Contains(Plugin.GetOwnName(), StringComparison.OrdinalIgnoreCase)) { return; }
 
-        profileNameNode->SetText(config.GetFakeName());
+        Utils.TrySetText(profileNameNode, StringIdentifier.FakeName, PluginData);
     }
 }

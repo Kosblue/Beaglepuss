@@ -26,6 +26,7 @@ public class Configuration : IPluginConfiguration
     public string FakeSearchComment { get; set; } = "Say hello to new me!";
 
     public bool ReplaceBattleTalk { get; set; } = true;
+    public bool ShowAllJobsAsMaxLevel { get; set; } = true;
 
     public void Save() { Services.PluginInterface.SavePluginConfig(this); }
 }

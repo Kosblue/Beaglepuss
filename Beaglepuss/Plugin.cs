@@ -7,6 +7,17 @@ using Dalamud.Plugin;
 
 namespace Beaglepuss;
 
+public enum StringIdentifier
+{
+    FakeFirstName,
+    FakeLastName,
+    FakeName,
+    FakeFreeCompany,
+    FakeFcTag,
+    PaddedFakeFcTag,
+    FakeSearchComment
+}
+
 public sealed class Plugin : IDalamudPlugin
 {
     private const string CommandName = "/disguise";
@@ -18,15 +29,10 @@ public sealed class Plugin : IDalamudPlugin
 
     private UpdateNameplateHook UpdateNameplateHook { get; init; }
     private TargetAddons TargetAddons { get; init; }
-    private AdventurePlateAddons AdventurePlateAddons { get; init; }
-    private PartyListAddon PartyListAddon { get; init; }
-    private CharacterPanelAddon CharacterPanelAddon { get; init; }
-    private SocialPanelAddon SocialPanelAddon { get; init; }
-    private ExamineAddon ExamineAddon { get; init; }
-    private SearchInfoAddon SearchInfoAddon { get; init; }
-    private PartyBannerAddon PartyBannerAddon { get; init; }
 
     public AddonHandlerBase[] AddonHandlers { get; init; }
+
+    public readonly StringManager<StringIdentifier> StringManager = new();
 
     public static string GetOwnName()
         => Services.ClientState.LocalPlayer?.Name.ToString() ?? "Unknown User";
@@ -38,6 +44,14 @@ public sealed class Plugin : IDalamudPlugin
         Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
         ConfigWindow = new ConfigWindow(this);
+
+        StringManager.SetString(StringIdentifier.FakeName, Configuration.GetFakeName());
+        StringManager.SetString(StringIdentifier.FakeFirstName, Configuration.FakeFirstName);
+        StringManager.SetString(StringIdentifier.FakeLastName, Configuration.FakeLastName);
+        StringManager.SetString(StringIdentifier.FakeFreeCompany, Configuration.FakeFcName);
+        StringManager.SetString(StringIdentifier.FakeFcTag, Configuration.FakeFcTag);
+        StringManager.SetString(StringIdentifier.PaddedFakeFcTag, Configuration.GetPaddedFakeFcTag());
+        StringManager.SetString(StringIdentifier.FakeSearchComment, Configuration.FakeSearchComment);
 
         WindowSystem.AddWindow(ConfigWindow);
 
@@ -52,21 +66,22 @@ public sealed class Plugin : IDalamudPlugin
 
         UpdateNameplateHook = new UpdateNameplateHook(Configuration);
         TargetAddons = new TargetAddons(Configuration);
-        AdventurePlateAddons = new AdventurePlateAddons(Configuration);
-        PartyListAddon = new PartyListAddon(Configuration);
-        CharacterPanelAddon = new CharacterPanelAddon(Configuration);
-        SocialPanelAddon = new SocialPanelAddon(Configuration);
-        ExamineAddon = new ExamineAddon(Configuration);
-        SearchInfoAddon = new SearchInfoAddon(Configuration);
-        PartyBannerAddon = new PartyBannerAddon(Configuration);
 
-        PluginData data = new(Configuration);
+        PluginData data = new(Configuration, StringManager);
 
         AddonHandlers =
         [
             new CharacterListMenuAddon(data),
             new WideTextAddon(data),
             new BattleTalkAddon(data),
+            new SearchInfoAddon(data),
+            new EditSearchInfoAddon(data),
+            new ExamineAddon(data),
+            new SocialPanelAddon(data),
+            new PartyBannerAddon(data),
+            new PartyListAddon(data),
+            new AdventurePlateAddons(data),
+            new CharacterPanelAddon(data),
         ];
     }
 
@@ -78,13 +93,7 @@ public sealed class Plugin : IDalamudPlugin
 
         UpdateNameplateHook.Dispose();
         TargetAddons.Dispose();
-        AdventurePlateAddons.Dispose();
-        PartyListAddon.Dispose();
-        CharacterPanelAddon.Dispose();
-        SocialPanelAddon.Dispose();
-        ExamineAddon.Dispose();
-        SearchInfoAddon.Dispose();
-        PartyBannerAddon.Dispose();
+        StringManager.Dispose();
         foreach (AddonHandlerBase handler in AddonHandlers)
         {
             handler.Dispose();

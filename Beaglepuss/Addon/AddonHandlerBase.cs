@@ -10,7 +10,7 @@ public abstract unsafe class AddonHandlerBase : IDisposable
     //public delegate void AddonEventHandler(AtkUnitBase* addon);
     protected readonly PluginData PluginData;
 
-    public AddonHandlerBase(PluginData pluginData, AddonEvent targetEvent, string addonName)
+    protected AddonHandlerBase(PluginData pluginData, AddonEvent targetEvent, string addonName)
     {
         PluginData = pluginData;
         Services.AddonLifecycle.RegisterListener(targetEvent, addonName, OnUpdateBase);

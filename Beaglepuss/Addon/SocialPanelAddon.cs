@@ -5,25 +5,11 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace Beaglepuss.Addon;
 
-public sealed unsafe class SocialPanelAddon : IDisposable
+public sealed unsafe class SocialPanelAddon(PluginData pluginData)
+    : AddonHandlerBase(pluginData, AddonEvent.PostUpdate, "Social")
 {
-    private readonly Configuration config;
-    public SocialPanelAddon(Configuration config)
+    protected override void OnUpdate(AtkUnitBase* addon)
     {
-        this.config = config;
-        Services.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "Social", OnSocialPanelUpdate);
-    }
-
-    public void Dispose()
-    {
-        Services.AddonLifecycle.UnregisterListener(OnSocialPanelUpdate);
-    }
-
-    private void OnSocialPanelUpdate(AddonEvent type, AddonArgs args)
-    {
-        var addon = (AtkUnitBase*)args.Addon;
-        if (!addon->IsVisible) { return; }
-
         IntPtr partyMemberListPtr = Services.GameGui.GetAddonByName("PartyMemberList");
         if (partyMemberListPtr == IntPtr.Zero) { return; }
 
@@ -39,11 +25,11 @@ public sealed unsafe class SocialPanelAddon : IDisposable
         string nameText = myNameNode->NodeText.ToString();
         if (!nameText.Matches(Plugin.GetOwnName())) { return; }
 
-        myNameNode->SetText(config.GetFakeName());
+        Utils.TrySetText(myNameNode, StringIdentifier.FakeName, PluginData);
 
         AtkTextNode* myFcNode = list->Component->UldManager.SearchNodeById(21)->GetAsAtkTextNode();
 
         if (myFcNode is null) { return; }
-        myFcNode->SetText(config.FakeFcTag);
+        Utils.TrySetText(myFcNode, StringIdentifier.FakeFcTag, PluginData);
     }
 }

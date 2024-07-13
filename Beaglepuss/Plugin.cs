@@ -82,6 +82,7 @@ public sealed class Plugin : IDalamudPlugin
             new PartyListAddon(data),
             new AdventurePlateAddons(data),
             new CharacterPanelAddon(data),
+            new CharacterClassAddon(data),
         ];
     }
 

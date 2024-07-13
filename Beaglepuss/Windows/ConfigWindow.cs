@@ -83,10 +83,10 @@ public class ConfigWindow : Window, IDisposable
             ImGui.EndTooltip();
         }
 
-        bool hideJobsFromSearchInfo = Configuration.ShowAllJobsAsMaxLevel;
-        if (ImGui.Checkbox("Hide Jobs from Search Info###Kosblue8", ref hideJobsFromSearchInfo))
+        bool anonymiseParameters = Configuration.AnonymiseParameters;
+        if (ImGui.Checkbox("Anonymise Params###Kosblue8", ref anonymiseParameters))
         {
-            Configuration.ShowAllJobsAsMaxLevel = hideJobsFromSearchInfo;
+            Configuration.AnonymiseParameters = anonymiseParameters;
             Configuration.Save();
         }
 

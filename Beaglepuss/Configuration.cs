@@ -25,5 +25,7 @@ public class Configuration : IPluginConfiguration
     public string FakeFcTag { get; set; } = "FC";
     public string FakeSearchComment { get; set; } = "Say hello to new me!";
 
+    public bool ReplaceBattleTalk { get; set; } = true;
+
     public void Save() { Services.PluginInterface.SavePluginConfig(this); }
 }

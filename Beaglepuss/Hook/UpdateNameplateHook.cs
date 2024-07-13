@@ -10,6 +10,9 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace Beaglepuss;
 
+/// <summary>
+/// FIXME: Use https://github.com/goatcorp/Dalamud/pull/1915 when it's merged.
+/// </summary>
 public sealed unsafe class UpdateNameplateHook : IDisposable
 {
     private delegate void* UpdateNameplateDelegate(RaptureAtkModule* raptureAtkModule,

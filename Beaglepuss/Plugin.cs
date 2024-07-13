@@ -65,7 +65,8 @@ public sealed class Plugin : IDalamudPlugin
         AddonHandlers =
         [
             new CharacterListMenuAddon(data),
-            new WideTextAddon(data)
+            new WideTextAddon(data),
+            new BattleTalkAddon(data),
         ];
     }
 

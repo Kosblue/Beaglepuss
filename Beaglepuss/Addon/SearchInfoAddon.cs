@@ -54,12 +54,12 @@ public sealed unsafe class SearchInfoAddon : IDisposable
 
             if (originalFcText.Matches(config.FakeFcName)) { return; }
 
-            IntPtr replacedTextPtr = Marshal.StringToHGlobalAnsi(config.FakeFcName);
-            ushort outWidth,
-                   outHeight;
-            fcNode->GetTextDrawSize(&outWidth, &outHeight, (byte*)replacedTextPtr);
-            Marshal.FreeHGlobal(replacedTextPtr);
-
+            ushort outWidth;
+            fixed (byte* replacedTextPtr = Utils.ToNullTerminatedAsciiBytes(config.FakeFcName))
+            {
+                ushort outHeight;
+                fcNode->GetTextDrawSize(&outWidth, &outHeight, replacedTextPtr);
+            }
             fcTagNode->SetXFloat(fcNode->GetXFloat() + outWidth);
         }
     }

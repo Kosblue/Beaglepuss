@@ -55,5 +55,22 @@ public class ConfigWindow : Window, IDisposable
             Configuration.FakeSearchComment = fakeSearchComment;
             Configuration.Save();
         }
+
+        bool replaceBattleTalk = Configuration.ReplaceBattleTalk;
+        if (ImGui.Checkbox("Replace Battle Talk###Kosblue7", ref replaceBattleTalk))
+        {
+            Configuration.ReplaceBattleTalk = replaceBattleTalk;
+            Configuration.Save();
+        }
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.Text("""
+                       Allow replacing battle talk (dialogue box at the top center of the screen) text with fake names.
+                       The reason you would want to disable this is if your character's first name is a common word that gets replaced often mistakenly.
+                       """);
+            ImGui.EndTooltip();
+        }
     }
 }

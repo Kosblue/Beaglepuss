@@ -36,11 +36,12 @@ public sealed class WideTextAddon(PluginData data)
 
         textNode->SetText(replacedText);
 
-        IntPtr replacedTextPtr = Marshal.StringToHGlobalAnsi(replacedText);
-        ushort outWidth,
-               outHeight;
-        textNode->GetTextDrawSize(&outWidth, &outHeight, (byte*)replacedTextPtr);
-        Marshal.FreeHGlobal(replacedTextPtr);
+        ushort outWidth;
+        fixed (byte* replacedTextBytesPtr = Utils.ToNullTerminatedAsciiBytes(replacedText))
+        {
+            ushort outHeight; // unused
+            textNode->GetTextDrawSize(&outWidth, &outHeight, replacedTextBytesPtr);
+        }
 
         AtkNineGridNode* shadowNode = addon->GetNodeById(4)->GetAsAtkNineGridNode();
 

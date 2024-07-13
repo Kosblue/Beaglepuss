@@ -43,6 +43,8 @@ public sealed unsafe class PartyListAddon : IDisposable
         var members = partyList->PartyMembers;
         foreach (AddonPartyList.PartyListMemberStruct member in members)
         {
+            if (member.Name is null) { continue; } // Can happen when logging in
+
             string nameText = member.Name->NodeText.ToString();
             if (string.IsNullOrWhiteSpace(nameText)) { continue; }
             if (nameText.Contains(Plugin.GetOwnName(), StringComparison.OrdinalIgnoreCase))

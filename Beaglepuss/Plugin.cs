@@ -1,4 +1,5 @@
-﻿using Beaglepuss.Addon;
+﻿using System;
+using Beaglepuss.Addon;
 using Beaglepuss.Windows;
 using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
@@ -24,6 +25,8 @@ public sealed class Plugin : IDalamudPlugin
     private ExamineAddon ExamineAddon { get; init; }
     private SearchInfoAddon SearchInfoAddon { get; init; }
     private PartyBannerAddon PartyBannerAddon { get; init; }
+
+    public AddonHandlerBase[] AddonHandlers { get; init; }
 
     public static string GetOwnName()
         => Services.ClientState.LocalPlayer?.Name.ToString() ?? "Unknown User";
@@ -56,6 +59,14 @@ public sealed class Plugin : IDalamudPlugin
         ExamineAddon = new ExamineAddon(Configuration);
         SearchInfoAddon = new SearchInfoAddon(Configuration);
         PartyBannerAddon = new PartyBannerAddon(Configuration);
+
+        PluginData data = new(Configuration);
+
+        AddonHandlers =
+        [
+            new CharacterListMenuAddon(data),
+            new WideTextAddon(data)
+        ];
     }
 
     public void Dispose()
@@ -73,6 +84,10 @@ public sealed class Plugin : IDalamudPlugin
         ExamineAddon.Dispose();
         SearchInfoAddon.Dispose();
         PartyBannerAddon.Dispose();
+        foreach (AddonHandlerBase handler in AddonHandlers)
+        {
+            handler.Dispose();
+        }
 
         Services.CommandManager.RemoveHandler(CommandName);
     }

@@ -10,13 +10,10 @@ public class Configuration : IPluginConfiguration
 
     public string GetFakeName()
         => $"{FakeFirstName} {FakeLastName}";
-
     public string GetFormattedFakeFcTag()
         => $"«{FakeFcTag}»";
-
     public string GetPaddedFakeFcTag()
         => $" {GetFormattedFakeFcTag()}";
-
     public string GetFakeOwnerName()
         => $"《{GetFakeName()}》";
 
@@ -24,6 +21,7 @@ public class Configuration : IPluginConfiguration
     public string FakeLastName { get; set; } = "Doe";
 
     public string FakeFcName { get; set; } = "FreeCompany";
+    public string FakeWorld { get; set; } = "World";
     public string FakeFcTag { get; set; } = "FC";
     public string FakeSearchComment { get; set; } = "Say hello to new me!";
 
